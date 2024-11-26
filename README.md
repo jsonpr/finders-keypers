@@ -12,6 +12,7 @@ Use cases include:
 - Audit Resources that a KMS Key may grant access to.
 
 For support and feedback, email <info@fogsecurity.io>
+Blog Post: [https://www.fogsecurity.io/blog/introducing-finders-keypers-a-tool-to-discover-usage-and-blast-radius-of-encryption-keys-in-aws](https://www.fogsecurity.io/blog/introducing-finders-keypers-a-tool-to-discover-usage-and-blast-radius-of-encryption-keys-in-aws)
 
 ## How to run
 
