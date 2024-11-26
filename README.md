@@ -1,4 +1,4 @@
-# AWS KMS Key Usage Finder
+# Finders Keypers (AWS KMS Key Usage Finder)
 This CLI tool will take an AWS KMS Key as input and output resources encrpyted with the specified KMS Key.  A full listing of supported resources and services can be found below.
 
 This tool supports both AWS Customer Managed KMS Keys and AWS Managed KMS Keys.  Keep in mind that `DescribeKey` can be a mutating operation by AWS to create AWS Managed keys from a predefined AWS alias with no key ID.  It is non-mutating for Customer Managed Keys.
