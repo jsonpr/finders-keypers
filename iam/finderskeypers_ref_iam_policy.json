@@ -21,6 +21,8 @@
                 "s3:GetBucketLocation",
                 "s3tables:ListTableBuckets",
                 "s3tables:GetTableBucketEncryption",
+                "s3tables:ListTables",
+                "s3tables:GetTableEncryption",
                 "ec2:DescribeVolumes",
                 "qldb:ListLedgers",
                 "qldb:DescribeLedger",
