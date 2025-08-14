@@ -255,7 +255,7 @@ def find_s3_tables_key_usage(session, key_region, input_key_arn, key_resources):
             bucket_encryption = bucket_encryption_response['encryptionConfiguration']
         
         except s3_tables_client.exceptions.NotFoundException:
-            continue  # Skip if no encryption is set  
+            pass 
         
         if bucket_encryption.get('kmsKeyArn'):
             encryption_key = bucket_encryption.get('kmsKeyArn')
@@ -263,6 +263,31 @@ def find_s3_tables_key_usage(session, key_region, input_key_arn, key_resources):
             if encryption_key == input_key_arn:
                 key_resources_append('S3 Tables', 'S3 Table Bucket', table_bucket['name'], 'Encryption At Rest', key_resources)
 
+        s3_tables_results = (
+            s3_tables_client.get_paginator('list_tables')
+            .paginate(
+                tableBucketARN=table_bucket['arn']
+            )
+            .build_full_result()
+        )
+
+        for table in s3_tables_results['tables']:
+            table_encryption_response  = s3_tables_client.get_table_encryption(
+                tableBucketARN=table_bucket['arn'],
+                namespace= table['namespace'][0],
+                name=table['name']
+            )
+            
+            try:
+                table_encryption = table_encryption_response['encryptionConfiguration']
+
+                if table_encryption.get('kmsKeyArn'):
+                    encryption_key = table_encryption.get('kmsKeyArn')
+
+                    if encryption_key == input_key_arn:
+                        key_resources_append('S3 Tables', 'S3 Table', table['arn'], 'Encryption At Rest', key_resources)
+            except:
+                pass
 
 def find_qldb_key_usage(session, key_region, input_key_arn, key_resources):
 
@@ -423,17 +448,20 @@ def find_ssm_key_usage(session, key_region, input_key_arn, key_resources):
 
 def find_timestream_key_usage(session, key_region, input_key_arn, key_resources):
 
-    #Timestream Live Analytics Databases
+    #Timestream Live Analytics Databases - AWS Support for Live Analytics is limited.
     #TODO: Timestream for InfluxDB
+    try:
+        timestream_client = session.client('timestream-write', region_name=key_region)
 
-    timestream_client = session.client('timestream-write', region_name=key_region)
+        #TODO: Fix for pagination
+        timestream_database_results = timestream_client.list_databases()
 
-    #TODO: Fix for pagination
-    timestream_database_results = timestream_client.list_databases()
+        for database in timestream_database_results['Databases']:
+            if database.get('KmsKeyId') == input_key_arn:
+                key_resources_append('Timestream', 'Timestream Database', database.get['Arn'], 'Encryption At Rest', key_resources) 
 
-    for database in timestream_database_results['Databases']:
-        if database.get('KmsKeyId') == input_key_arn:
-            key_resources_append('Timestream', 'Timestream Database', database.get['Arn'], 'Encryption At Rest', key_resources) 
+    except:
+        pass #Skip if Timestream Live Analytics is not supported in the account
 
 def find_redshiftserverless_key_usage(session, key_region, input_key_arn, key_resources):
 
